@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TDL</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        .container {
+            width: 700px;
+            margin-left: 300px;
+            margin-top: 50px;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .input-container input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+            outline: #0f60ac;
+            width: 250px;
+        }
+
+        .input-container button {
+            padding: 10px 15px;
+            background-color: #0f60ac;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .input-container button:hover {
+            background-color: #083981;
+        }
+
+        .Datatable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .Datatable thead th {
+            background-color: #f2f2f2;
+            color: #333;
+            font-weight: bold;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .Datatable tbody td {
+            padding: 12px;
+            color: #666;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .Datatable tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .Datatable tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .fa-trash-o {
+            color: white;
+            background-color: rgb(218, 19, 19);
+            padding: 5px;
+            margin-left: 8px;
+            cursor: pointer;
+        }
+
+        .fa-edit {
+            color: white;
+            background-color: rgb(19, 99, 218);
+            padding: 5px;
+            margin-right: 7px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="input-container">
+            <input type="text" id="textfield" placeholder="Enter your name">
+            <button type="submit" id="submitbtn">Add name</button>
+        </div>
+
+        <table class="Datatable">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="result">
+            </tbody>
+        </table>
+
+        <script>
+            const submitbtn = document.getElementById('submitbtn');
+            let btnname = submitbtn.innerText;
+            const textfield = document.getElementById('textfield');
+            let edit_id = null;
+            let results = document.getElementById('result');
+            let nameArray = [];
+            let objstr = localStorage.getItem('user');
+            if (objstr != null) {
+                nameArray = JSON.parse(objstr);
+            }
+
+            displayinfo();
+            
+            
+            submitbtn.addEventListener("click", () => {
+                
+                let name = textfield.value;
+                if (edit_id != null) {
+                    nameArray.splice(edit_id, 1, { 'name': name });
+                    edit_id = null;
+                }
+                else {
+                    if(textfield.value==''){
+                        alert('Please Enter name');
+                    }
+                    else{
+                        nameArray.push({ 'name': name });
+                    saveinfo(nameArray);
+                    }
+                    
+                }
+                textfield.value = '';
+                displayinfo();
+                submitbtn.innerText = btnname;
+            });
+        
+            function saveinfo(nameArray) {
+                let str = JSON.stringify(nameArray);
+                localStorage.setItem('user', str);
+            }
+
+            function editinfo(id) {
+                edit_id = id;
+                textfield.value = nameArray[id].name;
+                submitbtn.innerText = 'Save changes';
+
+
+            }
+
+            function deleteinfo(id) {
+                nameArray.splice(id, 1);
+                saveinfo(nameArray);
+                displayinfo();
+            }
+
+            function displayinfo() {
+                let statement = '';
+                nameArray.forEach(function (users, i) {
+                    statement += `<tr>
+                    <td>${i + 1}</td>
+                    <td>${users.name}</td>
+                    <td> <i class="fa fa-edit" onclick='editinfo(${i})'></i><i class="fa fa-trash-o" onclick='deleteinfo(${i})'></i></td>
+                </tr>`;
+                });
+                results.innerHTML = statement;
+            }
+        </script>
+    </div>
+</body>
+
+</html>
